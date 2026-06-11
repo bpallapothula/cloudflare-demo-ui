@@ -1,5 +1,14 @@
 export default {
   async fetch(request) {
-    return new Response("Worker is running!");
+    const cookie = request.headers.get("Cookie") || "";
+
+    if (!cookie.includes("auth=true")) {
+      return Response.redirect(
+        "https://cloudflare-demo-ui.bpallapothula.workers.dev/login.html",
+        302
+      );
+    }
+
+    return new Response("Authenticated!");
   }
 };
