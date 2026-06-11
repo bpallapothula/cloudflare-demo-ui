@@ -2,16 +2,25 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const pathname = url.pathname;
 
-  // Allow login page
-  if (pathname === "/login.html") {
+
+  if (pathname === "/" || pathname === "/index.html" || pathname === "/404.html") {
     return context.next();
   }
 
+  // Check for the cookie
   const cookieHeader = context.request.headers.get("cookie") || "";
-  const hasAccess = cookieHeader.includes("auth=true");
+  const hasAccess = cookieHeader.includes("wrangler pages deploy public --project-name my-poc");
 
   if (!hasAccess) {
-    return Response.redirect(`${url.origin}/login.html`, 302);
+
+    const notFoundPage = await context.env.ASSETS.fetch(
+      new URL("/404.html", context.request.url)
+    );
+
+    return new Response(notFoundPage.body, {
+      status: 404,
+      headers: { "Content-Type": "text/html" },
+    });
   }
 
   return context.next();
