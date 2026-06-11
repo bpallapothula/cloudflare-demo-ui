@@ -1,11 +1,11 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
     const cookie = request.headers.get("Cookie") || "";
 
     // Allow login page
     if (url.pathname === "/login.html") {
-      return new Response("Login Page");
+      return env.ASSETS.fetch(request);
     }
 
     // Redirect if not authenticated
@@ -13,6 +13,7 @@ export default {
       return Response.redirect(`${url.origin}/login.html`, 302);
     }
 
-    return new Response("Authenticated User");
+    // Serve requested HTML/CSS/JS asset
+    return env.ASSETS.fetch(request);
   }
 };
